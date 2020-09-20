@@ -13,6 +13,7 @@
 		3258F99F2517CC7100792BF0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3258F99D2517CC7100792BF0 /* Main.storyboard */; };
 		3258F9A12517CC7C00792BF0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3258F9A02517CC7C00792BF0 /* Assets.xcassets */; };
 		3258F9A42517CC7C00792BF0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3258F9A22517CC7C00792BF0 /* LaunchScreen.storyboard */; };
+		3258F9AC2517CD3600792BF0 /* CryptoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3258F9AB2517CD3600792BF0 /* CryptoManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,6 +25,7 @@
 		3258F9A02517CC7C00792BF0 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3258F9A32517CC7C00792BF0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		3258F9A52517CC7C00792BF0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3258F9AB2517CD3600792BF0 /* CryptoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CryptoManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +61,7 @@
 				3258F9972517CC7100792BF0 /* AppDelegate.swift */,
 				3258F9992517CC7100792BF0 /* SceneDelegate.swift */,
 				3258F99B2517CC7100792BF0 /* ViewController.swift */,
+				3258F9AB2517CD3600792BF0 /* CryptoManager.swift */,
 				3258F99D2517CC7100792BF0 /* Main.storyboard */,
 				3258F9A02517CC7C00792BF0 /* Assets.xcassets */,
 				3258F9A22517CC7C00792BF0 /* LaunchScreen.storyboard */,
@@ -140,6 +143,7 @@
 			files = (
 				3258F99C2517CC7100792BF0 /* ViewController.swift in Sources */,
 				3258F9982517CC7100792BF0 /* AppDelegate.swift in Sources */,
+				3258F9AC2517CD3600792BF0 /* CryptoManager.swift in Sources */,
 				3258F99A2517CC7100792BF0 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
