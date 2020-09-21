@@ -17,7 +17,26 @@ enum CryptoManagerError: Error {
     case unknown
 }
 
-class CryptoManager {
+extension CryptoManagerError: LocalizedError {
+    var errorDescription: String? {
+        switch self {
+        case .unacceptableName:
+            return "Unacceptable name"
+        case .unacceptableDataToDecrypt:
+            return "Unacceptable data to decrypt"
+        case .unableToGeneratePublicKey:
+            return "Unable to generate public key"
+        case .decryptionNotSupported:
+            return "Decryption not supported"
+        case .encryptionNotSupported:
+            return "Encryption not supported"
+        case .unknown:
+            return "Unknown error"
+        }
+    }
+}
+
+final class CryptoManager {
     
     // MARK: - Private parameters
     
@@ -30,7 +49,7 @@ class CryptoManager {
     
     // MARK: - Initializers
     
-    init(name: String) throws {
+    init(name: String) {
         self.name = name
     }
     
@@ -44,19 +63,24 @@ class CryptoManager {
         do {
             key = try privateKey()
         } catch {
+            print("Error getting private key:", error)
             completion(.failure(error))
             return
         }
         
         // Get public key from private key
         guard let publicKey = SecKeyCopyPublicKey(key) else {
-            completion(.failure(CryptoManagerError.unableToGeneratePublicKey))
+            let error = CryptoManagerError.unableToGeneratePublicKey
+            print(error)
+            completion(.failure(error))
             return
         }
         
         // Check whether encryption is supported
         guard SecKeyIsAlgorithmSupported(publicKey, .encrypt, algorithm) else {
-            completion(.failure(CryptoManagerError.encryptionNotSupported))
+            let error = CryptoManagerError.encryptionNotSupported
+            print(error)
+            completion(.failure(error))
             return
         }
         
@@ -67,6 +91,7 @@ class CryptoManager {
         var error: Unmanaged<CFError>?
         guard let encryptedData = SecKeyCreateEncryptedData(publicKey, algorithm, dataToEncrypt as CFData, &error) as Data? else {
             let error = error?.takeRetainedValue() as Error?
+            print(error ?? CryptoManagerError.unknown)
             completion(.failure(error ?? CryptoManagerError.unknown))
             return
         }
@@ -77,10 +102,12 @@ class CryptoManager {
     }
     
     /// Decrypts passed string with result in completion
-    func decrypt(base64string string: String, completion: @escaping (Result<String, Error>) -> ()) {
+    func decrypt(base64String string: String, completion: @escaping (Result<String, Error>) -> ()) {
         // Convert base64 string to data
         guard let data = Data(base64Encoded: string) else {
-            completion(.failure(CryptoManagerError.unacceptableDataToDecrypt))
+            let error = CryptoManagerError.unacceptableDataToDecrypt
+            print(error)
+            completion(.failure(error))
             return
         }
         decrypt(data: data, completion: completion)
@@ -93,13 +120,16 @@ class CryptoManager {
         do {
             key = try privateKey()
         } catch {
+            print("Error getting private key:", error)
             completion(.failure(error))
             return
         }
         
         // Check whether decryption is supported
         guard SecKeyIsAlgorithmSupported(key, .decrypt, algorithm) else {
-            completion(.failure(CryptoManagerError.decryptionNotSupported))
+            let error = CryptoManagerError.decryptionNotSupported
+            print(error)
+            completion(.failure(error))
             return
         }
         
@@ -110,7 +140,10 @@ class CryptoManager {
             // Decrypt data
             guard let decryptedData = SecKeyCreateDecryptedData(key, self.algorithm, data as CFData, &error) as Data? else {
                 let error = error?.takeRetainedValue() as Error?
-                completion(.failure(error ?? CryptoManagerError.unknown))
+                print(error ?? CryptoManagerError.unknown)
+                DispatchQueue.main.async {
+                    completion(.failure(error ?? CryptoManagerError.unknown))
+                }
                 return
             }
             // Convert decrypted data to string
@@ -119,6 +152,15 @@ class CryptoManager {
                 completion(.success(decryptedString))
             }
         }
+    }
+    
+    @discardableResult
+    func removeKey() -> Bool {
+        removeKey(name: name)
+    }
+    
+    func hasKey() -> Bool {
+        hasKey(name: name)
     }
     
     
@@ -192,5 +234,29 @@ class CryptoManager {
             return nil
         }
         return (item as! SecKey)
+    }
+    
+    private func removeKey(name: String) -> Bool {
+        let tag = name.data(using: .utf8)!
+        let query: [String: Any] = [
+            kSecClass as String:                kSecClassKey,
+            kSecAttrApplicationTag as String:   tag,
+            kSecAttrKeyType as String:          kSecAttrKeyTypeEC,
+            kSecReturnRef as String:            true
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess else {
+            return false
+        }
+        return true
+    }
+    
+    private func hasKey(name: String) -> Bool {
+        if let _ = loadKey(name: name) {
+            return true
+        } else {
+            return false
+        }
     }
 }
